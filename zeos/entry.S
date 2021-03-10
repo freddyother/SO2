@@ -81,13 +81,13 @@ ENTRY(keyboard_handler)
 ENTRY(system_call_handler)	
 	SAVE_ALL
 	cmpl $0, %EAX
-	jl sysenter_err
+	jl err
 	cmpl $MAX_SYSCALL, %EAX
 	jg err
 	call *sys_call_table(, %EAX, 0x04)
 	jmp fin
 err:
-	movl $-ENOSYS, %EAX
+	movl $38, %EAX
 fin:
 	movl %EAX, 0x18(%ESP)
 	RESTORE_ALL
