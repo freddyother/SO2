@@ -30,3 +30,30 @@ write_continue:
     popl %ecx
     popl %ebp
     ret
+
+
+ENTRY(gettime)
+	pushl %ebp
+	mov %esp, %ebp
+	pushl %ecx
+	pushl %edx
+	mov $10, %eax
+    	pushl $gettime_return 
+	pushl %ebp 
+	mov %esp, %ebp 
+	sysenter 
+
+gettime_return:
+	cmpl $0x0, %eax
+	jg gettime_continue
+	neg %eax
+	mov %eax, errno
+	mov $-1, %eax
+
+gettime_continue:
+	popl %ebp
+    	add $0x4, %esp
+	popl %edx
+	popl %ecx
+    	popl %ebp
+	ret

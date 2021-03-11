@@ -57,6 +57,9 @@ inline void set_seg_regs(Word data_sel, Word stack_sel, DWord esp)
 /*
  *   Main entry point to ZEOS Operating System
  */
+
+int zeos_ticks;
+ 
 int __attribute__((__section__(".text.main")))
   main(void)
 {
@@ -98,7 +101,8 @@ int __attribute__((__section__(".text.main")))
   copy_data((void *) KERNEL_START + *p_sys_size, usr_main, *p_usr_size);
 
 
-  printk("Entering user mode...");
+  printk("Entering user mode...\n");
+	zeos_ticks = 0;
 
   enable_int();
   /*

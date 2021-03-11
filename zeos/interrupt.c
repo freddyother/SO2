@@ -6,14 +6,12 @@
 #include <segment.h>
 #include <hardware.h>
 #include <io.h>
-
 #include <zeos_interrupt.h>
 
 Gate idt[IDT_ENTRIES];
 Register    idtR;
 
-void keyboard_handler();
-void system_call_handler();
+extern int zeos_ticks;
 int x = 0;
 char char_map[] =
 {
@@ -31,6 +29,12 @@ char char_map[] =
   '\0','\0','\0','\0','\0','\0','\0','\0',
   '\0','\0'
 };
+
+void keyboard_handler(void);
+void system_call_handler(void);
+void syscall_handler_sysenter(void);
+void writeMsr(int numberMSR, int value);
+void clock_handler(void);
 
 void setInterruptHandler(int vector, void (*handler)(), int maxAccessibleFromPL)
 {
@@ -87,8 +91,12 @@ void setIdt()
 
   /* ADD INITIALIZATION CODE FOR INTERRUPT VECTOR */
   
-  	setInterruptHandler(33, keyboard_handler, 0);
-    setTrapHandler(0x80, system_call_handler, 3);
+	writeMsr(0x174, __KERNEL_CS);
+	writeMsr(0x175, INITIAL_ESP);
+	writeMsr(0x176, (int)syscall_handler_sysenter);
+	setInterruptHandler(33, keyboard_handler, 0);
+  	setTrapHandler(0x80, system_call_handler, 3);
+  	setInterruptHandler(32, clock_handler, 0);
 
   set_idt_reg(&idtR);
 }
@@ -106,3 +114,9 @@ void keyboard_routine()
 		printc_xy(x++,5,key);
 	}
 }
+
+void clock_routine()
+{
+	zeos_show_clock();
+	++zeos_ticks;
+} 
