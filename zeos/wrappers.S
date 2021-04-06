@@ -2,9 +2,8 @@
 
 ENTRY(write)
     pushl %ebp
-    mov %esp, %ebp
-    pushl %ecx 
-    pushl %edx  
+    mov %esp, %ebp 
+    pushl %ebx 
     mov 8(%ebp), %ebx # fd
     mov 12(%ebp), %ecx # buffer
     mov 0X10(%ebp), %edx # size
@@ -35,8 +34,7 @@ write_continue:
 ENTRY(gettime)
 	pushl %ebp
 	mov %esp, %ebp
-	pushl %ecx
-	pushl %edx
+	pushl %ebx
 	mov $10, %eax
     	pushl $gettime_return 
 	pushl %ebp 
