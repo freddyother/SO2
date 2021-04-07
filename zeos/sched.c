@@ -24,6 +24,8 @@ struct list_head readyqueue;
 struct task_struct *idle_task;
 struct task_struct *init_task;
 
+void setMSR(unsigned long msr_number, unsigned long high, unsigned long low);
+
 
 /* get_DIR - Returns the Page Directory address for task 't' */
 page_table_entry * get_DIR (struct task_struct *t) 
@@ -64,8 +66,15 @@ void init_idle (void)
 	struct list_head *l = list_first(&freequeue);
 	list_del(l);
 	idle_task = list_head_to_task_struct(l);
+	union task_union *uc = (union task_union*)idle_task;
 	idle_task -> PID = 0;
 	allocate_DIR(idle_task);
+	
+	uc->stack[KERNEL_STACK_SIZE-1]=(unsigned long)&cpu_idle;
+	uc->stack[KERNEL_STACK_SIZE-2]=0;
+	idle_task->register_esp=(int)&(uc->stack[KERNEL_STACK_SIZE-2]); 
+
+	
 }
 
 void init_task1(void)
@@ -73,9 +82,13 @@ void init_task1(void)
 	struct list_head *l = list_first(&freequeue);
 	list_del(l);
 	init_task = list_head_to_task_struct(l);
+	union task_union *uc = (union task_union*)init_task;
+	
 	init_task -> PID = 1;
 	allocate_DIR(init_task);
 	set_user_pages(init_task);
+	tss.esp0 = (DWord)&(uc->stack[KERNEL_STACK_SIZE]);
+	setMSR(0x175, 0, (unsigned long)&(uc->stack[KERNEL_STACK_SIZE]));
 	set_cr3(init_task->dir_pages_baseAddr);
 
 }
