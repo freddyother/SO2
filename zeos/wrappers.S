@@ -53,3 +53,77 @@ gettime_continue:
 	popl %ebx
     popl %ebp
 	ret
+	
+ENTRY(getpid)
+     pushl %ebp
+     mov %esp, %ebp
+     pushl %ebx
+     mov $20, %eax
+     pushl $getpid_return 
+    pushl %ebp 
+    mov %esp, %ebp 
+    sysenter
+
+getpid_return:
+     cmpl $0x0, %eax
+     jg gettime_continue
+     neg %eax
+     mov %eax, errno
+     mov $-1, %eax
+
+getpid_continue:
+    popl %ebp
+    add $0x4, %esp
+    popl %ebx
+    popl %ebp
+    ret
+    
+
+ENTRY(fork)
+   pushl %ebp
+   mov %esp, %ebp
+   pushl %ebx
+   mov $2, %eax
+   pushl $fork_return 
+    pushl %ebp 
+    mov %esp, %ebp 
+    sysenter
+
+fork_return:
+   cmpl $0x0, %eax
+   jg gettime_continue
+   neg %eax
+   mov %eax, errno
+   mov $-1, %eax
+
+fork_continue:
+   popl %ebp
+   add $0x4, %esp
+   popl %ebx
+   popl %ebp
+    ret
+    
+ENTRY(exit)
+   pushl %ebp
+   mov %esp, %ebp
+   pushl %ebx
+   mov $20, %eax
+   	pushl $exit_return 
+    pushl %ebp 
+    mov %esp, %ebp 
+    sysenter
+
+exit_return:
+   cmpl $0x0, %eax
+   jg gettime_continue
+   neg %eax
+   mov %eax, errno
+   mov $-1, %eax
+
+exit_continue:
+    popl %ebp
+    add $0x4, %esp
+   	popl %ebx
+    popl %ebp
+    ret
+

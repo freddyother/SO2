@@ -96,6 +96,13 @@ void init_task1(void)
 
 void init_sched()
 {
+	INIT_LIST_HEAD(&freequeue);
+       for(int i = 0; i < NR_TASKS; i++) {
+           task[i].task.PID=-1;
+           list_add_tail(&(task[i].task.list), &freequeue);
+       }
+      
+      INIT_LIST_HEAD(&readyqueue);
 
 }
 
