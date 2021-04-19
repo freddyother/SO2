@@ -12,7 +12,7 @@ union task_union task[NR_TASKS]
 #if 1
 struct task_struct *list_head_to_task_struct(struct list_head *l)
 {
-  return list_entry( l, struct task_struct, list);
+  return (struct task struc*)((unsigned long)l&0xfffff000); /*maks 12 bits zero  */
 }
 #endif
 
@@ -96,8 +96,9 @@ void init_task1(void)
 
 void init_sched()
 {
-	INIT_LIST_HEAD(&freequeue);
-       for(int i = 0; i < NR_TASKS; i++) {
+       INIT_LIST_HEAD(&freequeue);
+       
+	for(int i = 0; i < NR_TASKS; i++) {
            task[i].task.PID=-1;
            list_add_tail(&(task[i].task.list), &freequeue);
        }
